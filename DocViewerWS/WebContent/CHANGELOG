@@ -1,0 +1,43 @@
+DocViewerWS (4.0.0.9) DocViewer (4.0.0.3)
+- DocViewerWS:
+  added "-strip" to ImageMagick command 
+
+DocViewerWS (4.0.0.8) DocViewer (4.0.0.3)
+- DocViewerWS: added image resizing using ImageMagick 
+
+DocViewerWS (4.0.0.7) DocViewer (4.0.0.3)
+- correct scp paths and change committed value for dimension
+
+DocViewerWS (4.0.0.6) DocViewer (4.0.0.3)
+- DocViewerWS: made resizing image files configurable
+
+  added to serverconfic.properties:
+  #resize image files
+  image.file.resize=true
+  #pixels
+  image.bounding.width=816
+  image.bounding.height=1056 	
+
+DocViewerWS (4.0.0.5) DocViewer (4.0.0.3)
+- DocViewerWS:
+  modified: ConverterService.java, ConvConstants.java, ImageMagickConverter.java, PdfOneConverter.java, DocumentConversionTask.java, UDVUtils.java
+  added: ImageResizer.java 
+
+DocViewerWS (4.0.0.4) DocViewer (4.0.0.3)
+- Reference: EDDAD-49843  - adjust command when reducing DPI
+
+DocViewerWS (4.0.0.3) DocViewer (4.0.0.3)
+- Added Deployment Configurations for DICT Sandbox
+
+DocViewerWS (4.0.0.2) DocViewer (4.0.0.3)
+- Added Deployment Configurations for PCSO/DICT Sandbox
+
+DocViewerWS (4.0.0.1) DocViewer (4.0.0.2)
+- changed notification in documentSaving.js 
+
+DocViewerWS (4.0.0.1) DocViewer (4.0.0.1)
+- added configuration to hide Redaction Pattern
+  serverconfig.properties = redaction.pattern=false 
+
+DocViewerWS (4.0.0.1) DocViewer (4.0.0.0)
+-  	Modified: serverconfig.properties, ResourceGatewayConstants.java, ConverterService.java, ConvConstants.java, CompositeConverter.java, PDFReducer.java, DocumentConversionTask.java, SVGRegenerationTask.java, UDVUtils.java 
