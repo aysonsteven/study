@@ -1,0 +1,32 @@
+
+#sample-files {
+	display: block;
+	margin-top: 8px;
+	margin-bottom: 8px;
+	/* border-top: 2px solid #575757; */
+	/* border-bottom: 2px solid #575757; */
+}
+
+#sample-files > h4 {
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
+#sample-files > h4,#sample-files >ul, .demo-ul >li {
+	display: inline-block;
+}
+
+.demo-ul {
+	padding: 0px 10px;
+	margin: 0;
+}
+
+.demo-ul > .selected-file {
+	background-color: #575757;
+	color: #fff
+}
+
+.demo-ul >li {
+	padding: 10px;
+	background-color: #d8d8d8;	
+}

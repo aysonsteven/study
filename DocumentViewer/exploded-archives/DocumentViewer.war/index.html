@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Document Viewer</title>
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<link rel="stylesheet" type="text/css" href="css/demo-style.css">
+</head>
+<body>	
+	<div id="viewer-wrapper">
+		<div id="viewer-menu" class="notSelected">
+			<ul class="tab-menu">
+				<li class="tab-active"  data-name="page">Page</li>
+				<li class="review-tools" data-name="annotate">Annotate</li>
+				<li class="review-tools" data-name="redact">Redact</li>
+			</ul>
+			
+			
+			<div class="page-nav-container">
+				<ul>
+					<li id="firstPage" class="cursorHand"><img src="images/first.png" title="First Page"></li>
+					<li id="prevPage" class="cursorHand"><img src="images/prev.png" title="Previous Page"></li>
+					<li>
+						<div class="page-count">
+							<input type="text" class="current-page" value="0"> of <span class="pages">0</span>
+						</div>
+					</li>
+					<li id="nextPage" class="cursorHand"><img src="images/next.png" title="Next Page"></li>
+					<li id="lastPage" class="cursorHand"><img src="images/last.png" title="Last Page"></li>
+				</ul>
+			</div>
+		</div>
+		
+		<div class="otherMenus review-tools">
+			<div class="cursorHand saveDocSettings"><img src="images/download.png" title="Download Document"></div>
+			<div class="cursorHand saveDocSettings"><img src="images/under-redact/save.png" title="Save Document Settings"></div>
+		</div>
+		
+		<div id="visibility-menu-container" class="review-tools" >
+			<div class="visibilityDefinedContainerRedaction cursorHand" id="redactVisibility">
+				<div class="selected-visibility-redaction">
+					<img src="images/r-show.png" class="visibility-holder-redaction" data-visibility="Show Redaction" title="Change Redaction Visibility to Semi-Transparent"/>
+				</div>
+				<div class="visibility-available-container">
+					<img src="images/r-show.png" class="visibility-holder-redaction" data-visibility="Show Redaction"/>
+					<img src="images/r-trans.png" class="visibility-holder-redaction" data-visibility="Semi-Transparent Redaction"/>
+					<img src="images/r-hide.png" class="visibility-holder-redaction" data-visibility="Hide Redaction"/>
+				</div>
+			</div>
+			
+			<div class="visibilityDefinedContainerAnnotation cursorHand" id="annotateVisibility">
+				<div class="selected-visibility-annotation">
+					<img src="images/a-show.png" class="visibility-holder-annotation" data-visibility="Show Annotation" title="Change Annotation Visibility to Semi-Transparent"/>
+				</div>
+				<div class="visibility-available-container">
+					<img src="images/a-show.png" class="visibility-holder-annotation" data-visibility="Show Annotation"/>
+					<img src="images/a-trans.png" class="visibility-holder-annotation" data-visibility="Semi-Transparent Annotation"/>
+					<img src="images/a-hide.png" class="visibility-holder-annotation" data-visibility="Hide Annotation"/>
+				</div>
+			</div>
+		</div>
+		
+		<div id="viewer-menu-content" class="notSelected">
+			<!-- Under Page Menu -->
+			<div class="under-page">
+				<div class="page-tool-container">
+					<div id="page-handtool"  class="cursorHand" data-drag="unable">
+						<img src="images/under-page/hand.png" title="Hand Tool">
+					</div>
+					<div id="page-rotatePage" class="cursorHand">
+						<img src="images/under-page/rotateDoc.png" title="Clockwise Rotate Page Tool">
+					</div>
+					<div id="page-rotatePageCounter" class="cursorHand">
+						<img src="images/under-page/rotateDoc-counter.png" title="Counter Clockwise Rotate Page Tool">
+					</div>
+					<div id="page-rotateDoc" class="cursorHand">
+						<img src="images/under-page/rotatePage.png" title="Clockwise Rotate Document Tool">
+					</div>
+					<div id="page-rotateDocCounter" class="cursorHand">
+						<img src="images/under-page/rotatePage-counter.png" title="Counter Clockwise Rotate Document Tool">
+					</div>
+				</div>
+			</div>
+			<!-- End of Under Page Menu -->
+				
+			<!-- Under Search Menu -->
+			<div class="under-search">
+				<div class="searchbox-container">
+					<img src="images/under-search/menu.png" id="showSearchMenu" class="cursorHand" title="Search Menu"  data-active="false">
+					<input type="text" class="search-input" placeholder="Search Document">
+				</div>
+				<div class="search-nav-container">
+					<ul>
+						<li><img src="images/prev.png" class="cursorHand"></li>
+						<li><img src="images/next.png" class="cursorHand"></li>
+					</ul>
+				</div>
+				<div class="search-highlight">
+					<input type="checkbox" class="highlight-checkbox cursorHand">
+					<p>Highlight All</p>
+				</div>
+			</div>
+			<!-- End of Under Search Menu -->
+
+
+			<!-- Under Annotation -->
+			<div class="under-annotate">
+				<div class="redact-container">
+						<img src="images/under-redact/arrow.png" id="addArrow" class="annotateIcons cursorHand" title="Arrow Annotation" data-active="false"  data-annotate="arrow">
+						<img src="images/under-redact/line.png" id="addLine" class="annotateIcons cursorHand" title="Line Annotation" data-active="false"  data-annotate="line">
+						<img src="images/under-redact/square.png" id="addSquare" class="annotateIcons cursorHand" title="Square Annotation" data-active="false"  data-annotate="rectangle">
+						<img src="images/under-redact/circle.png" id="addCircle" class="annotateIcons cursorHand" title="Circle Annotation" data-active="false"  data-annotate="circle">
+						<img src="images/under-redact/text.png" id="addText" class="annotateIcons cursorHand" title="Text Annotation" data-active="false"  data-annotate="text">
+				</div>
+			</div>
+			<!-- End of Under Annotate -->
+
+			<!-- Under Redact Menu -->
+			<div class="under-redact">
+				<div class="redact-container">
+					<img src="images/under-redact/redact.png" id="addRedact" class="annotateIcons cursorHand" title="Filled Redact" data-active="false"  data-annotate="redact">
+				</div>
+			</div>
+			<!-- End of Under Redact Menu -->
+			
+			<!-- Page Zoom -->
+			<div id="page-zoomtool">
+				<div class="zoomControls">
+					<img src="images/under-page/zoom_out.png" class="cursorHand zoomOut" title="Zoom Out">
+					<img src="images/under-page/zoom_in.png" class="cursorHand zoomIn" title="Zoom In">
+				</div>
+				<div class="zoomDefinedContainer cursorHand">
+					<div class="selected-zoom">
+						<span title="Zoom">100%</span>
+						<!-- <img src="images/under-page/down-arrow.png"  class="down-arrow"> -->
+					</div>
+					<!--<div class="zoom-available-container">
+						<div class="zoom-holder">Automatic Zoom</div>
+						<div class="zoom-holder">Page Fit</div>
+						<div class="zoom-holder">Page Width</div>
+						<div class="zoom-holder">25%</div>
+						<div class="zoom-holder">50%</div>
+						<div class="zoom-holder">75%</div>
+						<div class="zoom-holder">100%</div>
+						<div class="zoom-holder">125%</div>
+						<div class="zoom-holder">150%</div>
+						<div class="zoom-holder">175%</div>
+						<div class="zoom-holder">200%</div>
+						<div class="zoom-holder">300%</div>
+						<div class="zoom-holder">400%</div>
+						<div class="zoom-holder">500%</div>
+					</div> -->
+				</div>
+			</div>
+		</div>
+		
+		
+		
+		<div id="wrapper">
+			<div id="viewer-searchbox">
+				<div class="containerControls">
+					<img src="images/close.png" class="cursorHand" id="closeSearchMenu" title="Close">
+				</div>
+
+				<div class="searchControls">
+					<img src="images/under-search/searchBox/match-exact.png" title="Match Exact" class="cursorHand" id="matchExact" data-active="false">
+					<img src="images/under-search/searchBox/match-case.png" title="Match Case" class="cursorHand" id="matchCase" data-active="false">
+					<img src="images/under-search/searchBox/whole-word.png" title="Whole Word" class="cursorHand" id="wholeWord" data-active="false">
+					<img src="images/under-search/searchBox/begins-with.png" title="Begins With" class="cursorHand" id="beginsWith" data-active="false">
+					<img src="images/under-search/searchBox/ends-with.png" title="Ends With" class="cursorHand" id="endsWith" data-active="false">
+					<img src="images/under-search/searchBox/wild-card.png" title="Wild Card " class="cursorHand" id="wildCard" data-active="false">
+				</div>
+
+				<div class="searchWord-count">
+					<p>Search Result Found:</p><span class="count">0</span>
+				</div>
+				<div class="searchWord-controls">
+					<div class="searchWord-Nav">
+						<ul>
+							<li id="firstPage" class="cursorHand"><img src="images/first.png" title="First Searched Word"></li>
+							<li id="prevPage" class="cursorHand"><img src="images/prev.png" title="Previous Searched Word"></li>
+							<li id="nextPage" class="cursorHand"><img src="images/next.png" title="Next Searched Word"></li>
+							<li id="lastPage" class="cursorHand"><img src="images/last.png" title="Last Searched Word"></li>
+						</ul>
+					</div>
+				</div>
+
+
+				<div class="searchedWord-container">
+					<div class="searchedWord-column">
+						<div class="Page">
+							<p>Page</p>
+						</div>
+						<div class="Result">
+							<p>Result</p>
+						</div>
+					</div>
+
+					<div class="searchedWord-row-container">
+						<div id="1" class="searchedWord-row">
+							<div class="rowPage">
+								<p>1</p>
+							</div>
+							<div class="rowResult">
+								<p>
+									Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu metus in nunc pellentesque consequat. Pellentesque interdum hendrerit mi, id porta diam lacinia et. Vestibulum accumsan dolor vitae augue semper venenatis. Maecenas eu sapien pulvinar sapien pharetra eleifend ac sit amet diam. 
+								</p>
+							</div>
+						</div>
+
+						<div id="2" class="searchedWord-row">
+							<div class="rowPage">
+								<p>1</p>
+							</div>
+							<div class="rowResult">
+								<p>
+									Donec auctor mattis lorem non dignissim. Nam fringilla mi eu purus vehicula, id luctus nisi fermentum.
+								</p>
+							</div>
+						</div>
+
+						<div id="3" class="searchedWord-row">
+							<div class="rowPage">
+								<p>2</p>
+							</div>
+							<div class="rowResult">
+								<p>
+									Nulla et tellus at eros sodales gravida at id velit. Sed iaculis augue turpis, sed lobortis lorem sagittis ac.
+								</p>
+							</div>
+						</div>
+
+						<div id="4" class="searchedWord-row">
+							<div class="rowPage">
+								<p>2</p>
+							</div>
+							<div class="rowResult">
+								<p>
+									Aliquam nec augue justo. Pellentesque sed ipsum non arcu ultrices aliquet sed in nibh.
+								</p>
+							</div>
+						</div>
+
+						<div id="5" class="searchedWord-row">
+							<div class="rowPage">
+								<p>3</p>
+							</div>
+							<div class="rowResult">
+								<p>
+									Nulla ipsum sapien, pellentesque gravida molestie at, porttitor et lectus. Fusce mollis malesuada erat, 
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+			<!-- Annotation Container -->
+			<div class="annotationsContainer">
+
+				<!-- Redact Annotation -->
+				<div id="viewer-redactbox" class="notSelected">
+					<div class="redactControls">
+						<img src="images/under-redact/RedactBox/Fill.png" class="cursorHand selected" id="Redact_fill">
+						<img src="images/under-redact/RedactBox/Layers.png" class="cursorHand" id="Redact_index">
+					</div>
+					<div id="Redact_delete">
+						<img src="images/under-redact/RedactBox/Delete.png" class="cursorHand">
+					</div>
+
+
+					<div class="containerControls">
+						<img src="images/close.png" class="cursorHand" id="closeRedact" title="Close">
+						<img src="images/under-redact/RedactBox/Minimize.png" data-resize="minimize" class="cursorHand" id="resizeRedactBox" title="Minimize">
+					</div>
+					<div class="redactControls-contents">
+						<div class="reason-container cursorHand">
+							<div class="selected-reason">
+								<span title="Redaction Reason">Redaction Reason</span>
+								<div class="down-arrow">
+									<img src="images/under-redact/RedactBox/down-arrow.png" >
+								</div>
+							</div>
+							<div class="reasons-available-container">
+								<div class="reasons-holder">Test 1</div>
+								<div class="reasons-holder">Test 2</div>
+								<div class="reasons-holder">Test 3</div>
+								<div class="reasons-holder">Test 4</div>
+								<div class="reasons-holder">Test 5</div>
+								<div class="reasons-holder">Test 6</div>
+							</div>
+						</div>
+						<div class="layering-controls">
+							<img src="images/under-redact/RedactBox/bringfront.png" id="redactionBringFront" class="cursorHand" title="Bring Front">
+							<img src="images/under-redact/RedactBox/movefront.png" id="redactionMoveFront" class="cursorHand" title="Move Front">
+							<img src="images/under-redact/RedactBox/moveback.png" id="redactionMoveBack" class="cursorHand" title="Move Back">
+							<img src="images/under-redact/RedactBox/bringback.png" id="redactionBringBack" class="cursorHand" title="Bring Back">
+						</div>
+					</div>
+				</div>
+				<!-- End of Redact Annotation -->
+				
+				<!-- Shared Annotation Box -->
+				<div id="viewer-annotateBox" class="notSelected">
+					<div class="annotateBoxTab">
+						<img alt="Arrow Annotation" src="images/under-redact/arrow.png" id="arrowTab" class="cursorHand" data-colorvalue="">
+						<img alt="Line Annotation" src="images/under-redact/line.png" id="lineTab" class="cursorHand" data-colorvalue="">
+						<img alt="Rectangle Annotation" src="images/under-redact/square.png" id="rectTab" class="cursorHand" data-colorvalue="">
+						<img alt="Border" src="images/under-redact/square_border.png" id="rectBorderTab" class="cursorHand" data-colorvalue="">
+						<img alt="Circle Annotation" src="images/under-redact/circle.png" id="circleTab" class="cursorHand" data-colorvalue="">
+						<img alt="Border" src="images/under-redact/circle_border.png" id="circleBorderTab" class="cursorHand" data-colorvalue="">
+						<img alt="Text Annotation" src="images/under-redact/text.png" id="textTab" class="cursorHand" data-colorvalue="">
+						<img alt="Text Style" src="images/under-redact/text-style.png" id="textstyleTab" class="cursorHand" data-bold="false" data-italic="false" data-underline="false" data-strike="false">
+						<img alt="Text Alignment" src="images/under-redact/text-alignment.png" id="textAlignTab" class="cursorHand" data-horizontal="center" data-vertical="middle">
+						<img alt="Layering" src="images/under-redact/RedactBox/Layers.png" id="layerTab" class="cursorHand">
+					</div>
+					
+					<div class="tabContent">
+						<div class="colorPickerBox" title="Color Picker">
+							<div class="selectedColor" id="fillColor" style="background:#ff0000">
+								
+							</div>
+							<div class="down-arrow">
+								<img src="images/under-redact/RedactBox/down-arrow.png" >
+							</div>
+							<div id="availableColors">
+								<div style="background:#ff0000"></div>
+								<div style="background:#ffff00"></div>
+								<div style="background:#f7941d"></div>
+								<div style="background:#00ff00"></div>
+								<div style="background:#00ffff"></div>
+								<div style="background:#ff00ff"></div>
+								<div style="background:#6666ff"></div>
+								<div style="background:#cccccc"></div>
+								<div style="background:#ffffff"></div>
+								
+								<div style="background:#cc0000"></div>
+								<div style="background:#999900"></div>
+								<div style="background:#a3620a"></div>
+								<div style="background:#00a651"></div>
+								<div style="background:#0000ff"></div>
+								<div style="background:#92278f"></div>
+								<div style="background:#3333cc"></div>
+								<div style="background:#000000"></div>
+								<div id="nofillColor" data-bgcolor='none')></div>
+							</div>
+						</div>
+						
+						<div class="opacityPickerBox cursorHand" title="Opacity Picker">
+								<img src="images/under-redact/RedactBox/opacity.png" class="icon notSelected ">
+								<div class="selectedArrowOpacity notSelected">
+								<span id ="fillOpacity">100%</span>
+								<div class="down-arrow">
+									<img src="images/under-redact/RedactBox/down-arrow.png" >
+								</div>
+							</div>
+							<div id="availableOpacity" class="notSelected toolBarDropDown">
+								<div class="opacity-holder"><img src="images/under-redact/RedactBox/opacity.png" style="opacity: 0;">0%</div>
+								<div class="opacity-holder"><img src="images/under-redact/RedactBox/opacity.png" style="opacity: 0.1;">10%</div>
+								<div class="opacity-holder"><img src="images/under-redact/RedactBox/opacity.png" style="opacity: 0.2;">20%</div>
+								<div class="opacity-holder"><img src="images/under-redact/RedactBox/opacity.png" style="opacity: 0.3;">30%</div>
+								<div class="opacity-holder"><img src="images/under-redact/RedactBox/opacity.png" style="opacity: 0.4;">40%</div>
+								<div class="opacity-holder"><img src="images/under-redact/RedactBox/opacity.png" style="opacity: 0.5;">50%</div>
+								<div class="opacity-holder"><img src="images/under-redact/RedactBox/opacity.png" style="opacity: 0.6;">60%</div>
+								<div class="opacity-holder"><img src="images/under-redact/RedactBox/opacity.png" style="opacity: 0.7;">70%</div>
+								<div class="opacity-holder"><img src="images/under-redact/RedactBox/opacity.png" style="opacity: 0.8;">80%</div>
+								<div class="opacity-holder"><img src="images/under-redact/RedactBox/opacity.png" style="opacity: 0.9;">90%</div>
+								<div class="opacity-holder"><img src="images/under-redact/RedactBox/opacity.png" style="opacity: 1;">100%</div>
+							</div>
+						</div>
+						
+						<div class="widthPickerBox cursorHand" title="Border Width Picker">
+							<img src="images/under-redact/RedactBox/lineWidth.png" class="icon notSelected ">
+							<div class="selectedArrowWidth notSelected">
+								<span id="fillWidth">6</span>
+								<div class="down-arrow">
+									<img src="images/under-redact/RedactBox/down-arrow.png" >
+								</div>
+							</div>
+							<div id="availableWidth" class="notSelected toolBarDropDown">
+								<div class="width-holder"><img src="images/under-redact/border-1.png">1</div>
+								<div class="width-holder"><img src="images/under-redact/border-2.png">2</div>
+								<div class="width-holder"><img src="images/under-redact/border-3.png">3</div>
+								<div class="width-holder"><img src="images/under-redact/border-4.png">4</div>
+								<div class="width-holder"><img src="images/under-redact/border-5.png">5</div>
+								<div class="width-holder"><img src="images/under-redact/border-6.png">6</div>
+								<div class="width-holder"><img src="images/under-redact/border-7.png">7</div>
+								<div class="width-holder"><img src="images/under-redact/border-8.png">8</div>
+							</div>
+						</div>
+						
+						<div class="fontFacePickerBox cursorHand" title="Textbox Font">
+							<div class="selectedTextFont notSelected">
+								<span id="fontFace">Arial</span>
+								<div class="down-arrow">
+									<img src="images/under-redact/RedactBox/down-arrow.png" >
+								</div>
+							</div>
+							<div id="availableFonts" class="notSelected toolBarDropDown">
+								<div class="font-holder" title="Arial">Arial</div>
+								<div class="font-holder" title="Comic Sans">Comic Sans MS</div>
+								<div class="font-holder" title="Courier">Courier</div>
+								<div class="font-holder" title="Times New Roma">Times New Roman</div>
+								<div class="font-holder" title="Verdana">Verdana</div>
+							</div>
+						</div>
+
+						<div class="textSizePickerBox cursorHand" title="Text Size">
+							<div class="selectedFontSize notSelected">
+								<span id="textSize">12</span>
+								<div class="down-arrow">
+									<img src="images/under-redact/RedactBox/down-arrow.png" >
+								</div>
+							</div>
+							<div id="availableSize" class="notSelected toolBarDropDown">
+								<div class="size-holder">8</div>
+								<div class="size-holder">9</div>
+								<div class="size-holder">10</div>
+								<div class="size-holder">11</div>
+								<div class="size-holder">12</div>
+								<div class="size-holder">14</div>
+								<div class="size-holder">16</div>
+								<div class="size-holder">20</div>
+								<div class="size-holder">22</div>
+								<div class="size-holder">24</div>
+								<div class="size-holder">26</div>
+								<div class="size-holder">28</div>
+								<div class="size-holder">36</div>
+								<div class="size-holder">48</div>
+								<div class="size-holder">72</div>
+							</div>
+						</div>
+						
+
+						<div  class="textStyleContainer">
+							<img src="images/under-redact/bold-text.png" id="boldText" class="cursorHand" title="Bold">
+							<img src="images/under-redact/italic-text.png" id="italicText" class="cursorHand" title="Italic">
+							<img src="images/under-redact/underline.png" id="underlineText" class="cursorHand" title="Underline">
+							<img src="images/under-redact/strikeout.png" id="strikeoutText" class="cursorHand" title="Strike-out">
+						</div>		
+						
+						<div  class="textAlignContainer">
+							<img src="images/under-redact/left-align.png" id="leftAlign" class="cursorHand" title="Left">
+							<img src="images/under-redact/text-alignment.png" id="centerAlign" class="cursorHand" title="Center">
+							<img src="images/under-redact/right-align.png" id="rightAlign" class="cursorHand" title="Right">
+							
+							<span class="seperator-line"><img src="images/under-redact/seperator-line.png"></span>
+							
+							<div class="verticalAlignContainer">
+								<img src="images/under-redact/top-align.png" id="topAlign" class="cursorHand" title="Top">
+								<img src="images/under-redact/middle-align.png" id="middleAlign" class="cursorHand" title="Middle">
+								<img src="images/under-redact/bottom-align.png" id="bottomAlign" class="cursorHand" title="Bottom">
+							</div>
+						</div>		
+						
+						<div class="layerContainer">
+							<img src="images/under-redact/RedactBox/bringfront.png" id="annotationBringFront" class="cursorHand" title="Bring to Front">
+							<img src="images/under-redact/RedactBox/movefront.png" id="annotationMoveFront" class="cursorHand" title="Bring Forward">
+							<img src="images/under-redact/RedactBox/moveback.png" id="annotationMoveBack" class="cursorHand" title="Send Backward">
+							<img src="images/under-redact/RedactBox/bringback.png" id="annotationBringBack" class="cursorHand" title="Send to Back">
+						</div>
+					</div>
+					
+					
+					<!-- For Delete Annotation, Close and Resize the ToolBox -->
+					<div class="sharedTools">
+						<img alt="Delete Annotation" src="images/under-redact/RedactBox/Delete.png" class="cursorHand" id="deleteAnnotation">
+						<img src="images/close.png" class="cursorHand" title="Close" id="closeAnnotateBox">
+						<img src="images/under-redact/RedactBox/Minimize.png" data-resize="minimize" class="cursorHand" id="resizeAnnotateBox" title="Minimize">
+					</div>
+					
+				</div>
+				<!-- Shared Annotation Box -->
+			</div>
+				
+			
+			<!-- Delete Multiple Select -->
+			<div id="deleteMultiple">
+				<div id="multiple_delete">
+					<img src="images/under-redact/RedactBox/Delete.png" class="cursorHand" title="Delete Selected">
+				</div>
+				<div class="containerControls">
+					<img src="images/close.png" class="cursorHand" id="closeMultipleDelete" title="Close">
+					<img src="images/under-redact/RedactBox/Minimize.png" data-resize="minimize" class="cursorHand" id="resizeMultipleDelete" title="Minimize">
+				</div>
+			</div>
+			<!-- End Delete Multiple Select -->
+			
+			<!-- End of Annotations Container -->
+
+
+
+			<div id="DV-Notif">
+				<img class="icon-Notif">
+				<p id="textMsg"></p>
+				<button id="close-Notif">x</button>
+			</div>
+			<!-- Main Document Viewer -->
+			<div id="viewerContainer">
+				<div id="viewer-document-wrapper">
+				
+				</div>
+			</div>
+			<!-- End of Main Document Viewer -->
+			<div id="viewer-footer">
+				<p>Unified Document Viewer™ 2015</p>
+			</div>
+		</div>
+	</div>
+	
+	<textarea id="textAreaContainer" spellcheck="false" style="display: none "></textarea>
+	
+	<!--<div id="sample-files">
+		<h4>load sample files :</h4>
+		<ul class="demo-ul">
+			<li class="cursorHand selected-file" data-file="D:\\workspace_doc_viewer\\DocumentViewer\\sampleDocs\\SampleDoc.pdf">.doc</li>
+			<li class="cursorHand" data-file="D:\\workspace_doc_viewer\\DocumentViewer\\sampleDocs\\SampleTiff.pdf">.tiff</li>
+			<li class="cursorHand" data-file="D:\\workspace_doc_viewer\\DocumentViewer\\sampleDocs\\SampleJpeg.pdf">.jpeg</li>			
+		</ul>
+	</div>-->
+	
+	<script src="js/html5shiv.js"></script>
+	<script src="js/html5shiv-printshiv.js"></script>
+	<script src="js/jquery.js"></script>
+	<script src="js/commons.js"></script>
+	<script src="js/constants.js"></script>
+	<script src="js/declaration.js"></script>
+	<script src="js/snap.svg.js"></script>
+	<script src="js/svgCaching.js"></script>
+	<script src="js/documentLoading.js"></script>
+	<script src="js/documentSaving.js"></script>
+	<script src="js/annotationDraw.js"></script>
+	<script src="js/annotationNavigation.js"></script>
+	<script src="js/dropDown_prototype.js"></script>
+	<script src="js/draggable.js"></script>
+	<script src="js/redactBox.js"></script>
+
+	<script src="js/multipleDelete.js"></script>
+	<script src="js/searchBox.js"></script>
+	<script src="js/dragScroll.js"></script>
+	<script src="js/msgBox.js"></script>
+	<script src="js/zoomFunctions.js"></script>
+	<script src="js/rotateFunctions.js"></script>
+	<script src="js/main.js"></script>
+	<script src="js/demo.js"></script>
+	<script src="js/visibilityMode.js"></script>
+	<script language="javascript">
+	documentViewer = new UDViewer('D:\\DocumentViewer\\DocumentViewer\\sampleDocs\\SampleDoc.pdf');
+	</script>
+</body>
+</html>

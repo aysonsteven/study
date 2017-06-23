@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html moznomarginboxes mozdisallowselectionprint>
+<head>
+	<title>Document Viewer</title>
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+
+	<style type="text/css">
+		html, body{ margin: 0px; padding: 0px;}
+        
+        .page > svg:not(:root) { width: 100% !important; height: 100% !important; }
+        .pageIE > svg:not(:root) { width: 100% !important; height: 100% !important; }
+        .pageSafari > svg:not(:root) { width: 100% !important; height: 100% !important; }
+		
+		.page { margin: 0 auto !important; }
+		.pageIE { margin: 0 auto !important; }
+		.pageSafari { margin: 0cm auto !important; }
+		
+		.portrait { width: 8.5in; height: 11in; }
+        .portraitIE { width: 7.3in; height: 9.5in; }
+        .portraitSafari { width: 6.9in; height: 8.9in; }
+        
+        .landscape { width: 11in; height: 8.5in; }
+        .landscapeIE { width: 9.05in; height: 7in; }
+        .landscapeSafari { width: 8.4in; height: 6.5in; }
+		
+		@page {
+			size: udvPrintOrientation;
+			margin: 0cm !important;
+			white-space: pre;
+		}
+		
+		@media print {
+
+			div{
+		        page-break-inside: avoid;
+		    }
+			
+			#header,#footer{
+				display:none;
+				visibility: hidden;
+			}
+		
+            /* required for Firefox to print all pages */
+            * { position: static !important; float: none !important; }
+		}
+	</style>
+	
+</head>
+<body>
+	<div id="print-viewerContainer"></div>
+</body>
+</html>

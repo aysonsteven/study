@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="DocumentViewer" default="" basedir=".">
+
+	<!-- |============================================================|  -->
+	<!-- |   BUILD PROPERTY                                           |  -->
+	<!-- |============================================================|  -->
+	<!-- Give user a chance to override without editing this file or typing -D -->
+	<property file="${basedir}/build.properties" />
+	<property name="profile" value="dev-jboss" />
+	<property file="build-${profile}.properties" />
+	<property name="project.name" value="DocumentViewer" />
+	<property name="src.dir" value="src" />
+	<property name="tmp.dir" value="tmp" />
+	<property name="class.dir" value="build/classes" />
+	<property name="web-content.dir" value="WebContent" />
+	<property name="project.war" value="true" />
+	<property name="lib.dir" value="lib" />
+	<property name="war.dir" value="exploded-archives/${project.name}.war" />
+	<property name="exploded.archive.dir" value="${war.dir}" />
+	<property name="deploy.dir" value="${jboss.home}/server/${jboss.domain}/deploy" />
+	<property name="deploy.plume.dir" value="${tomcat.home}/webapps" />
+	<property name="deploy.7-1-3.dir" value="${jboss.7-1-3.home}/standalone/deployments" />
+	<property name="war.deploy.dir" value="${deploy.dir}/${project.name}.war" />
+	<property name="war-plume.deploy.dir" value="${deploy.plume.dir}/${project.name}" />
+	<property name="war-7-1-3.deploy.dir" value="${deploy.7-1-3.dir}/${project.name}.war" />
+	<property name="warfile.deploy.dir" value="${deploy.dir}/${project.name}" />
+	<property name="javac.debug" value="true" />
+	<property name="javac.deprecation" value="false" />
+	<property name="debug" value="${debug}" />
+	<property name="warfile.output.dir" value="warcontent" />
+	<property name="js.dir" value="WebContent/js"/>
+	<property name="js-min.dir" value="build/min"/>
+	<!-- |=============================================================|  -->
+	<!-- |   CLASS PATH                                                |  -->
+	<!-- |=============================================================|  -->
+	<path id="project-classpath">
+		<fileset dir="${lib.dir}" includes="*.jar" />
+		<fileset dir="${jboss.home}/lib" includes="*.jar" />
+	</path>
+
+	<!-- |=============================================================|  -->
+	<!-- |   CLEANING OF TEMPORARY FOLDERS CREATED                     |  -->
+	<!-- |=============================================================|  -->
+	<target name="clean-class-dir">
+		<delete dir="${class.dir}" />
+		<delete dir="${war.dir}" /> 
+	</target>
+
+	<!-- |=============================================================|  -->
+	<!-- |   COMPILATION OF JAVA FILES                                 |  -->
+	<!-- |=============================================================|  -->
+	<target name="compile-java" depends="clean-class-dir">
+		<mkdir dir="${class.dir}" />
+		<javac includeantruntime="false" srcdir="${src.dir}" destdir="${class.dir}" classpathref="project-classpath" debug="true" deprecation="false" nowarn="on" fork="on" source="1.7" target="1.7"/>
+	</target>
+	<!-- |=============================================================|  -->
+	<!-- |   Clean Server War                                          |  -->
+	<!-- |=============================================================|  -->
+	
+	<target name="clean_server_war" description="Clean out war file in server">
+		<delete file="${warfile.output.dir}/war/${project.name}.war"/>	      
+	</target>
+
+	<!-- |=============================================================|  -->
+	<!-- |   Building War to temporary location                        |  -->
+	<!-- |=============================================================|  -->
+	<target name="war" depends="compile-java,compile-scripts" description="Build the WAR structure in a staging directory">
+		<mkdir dir="${war.dir}" />
+		<mkdir dir="${war.dir}/WEB-INF" />
+		<copy todir="${war.dir}/WEB-INF">
+			<fileset dir="${web-content.dir}/WEB-INF">
+				<include name="**/*.*" />
+				<exclude name="serverconfig*.properties"/>
+			</fileset>
+		</copy>
+		<copy todir="${war.dir}/WEB-INF/classes/META-INF">
+			<fileset dir="${web-content.dir}/META-INF">
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+		<copy todir="${war.dir}/WEB-INF/lib">
+			<fileset dir="${lib.dir}">
+				<includesfile name="deployed-jars.list"/>
+			</fileset>
+		</copy>
+		<copy todir="${war.dir}/WEB-INF/classes">
+			<fileset dir="${class.dir}">
+				<include name="**/*.*" />
+			</fileset>
+			<fileset dir="${src.dir}">
+				<include name="*.properties" />
+			</fileset>
+			<fileset dir="${web-content.dir}/WEB-INF">
+				<include name="serverconfig.properties"/>
+			</fileset>
+		</copy>
+		<copy todir="${war.dir}">
+			<fileset dir="${web-content.dir}">
+				<exclude name="**/WEB-INF/**"/>
+				<exclude name="**/META-INF/**"/>
+				<exclude name="/js/udv.js"/>
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="compile-scripts" description="Build the WAR structure in a staging directory">
+		<copy todir="${war.dir}">
+			<fileset dir="${web-content.dir}">
+				<exclude name="**/WEB-INF/**"/>
+				<exclude name="**/META-INF/**"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<!-- |=============================================================|  -->
+	<!-- |   Build Project                                             |  -->
+	<!-- |=============================================================|  -->
+	<target name="build-war" depends="clean-class-dir, compile-java">
+		<war destfile="${exploded.archive.dir}/${project.name}.war" webxml="${web-content.dir}/WEB-INF/web.xml">
+			<fileset dir="${web-content.dir}">
+				<include name="**/*.*" />
+			</fileset>
+
+			<!-- exclude 3rd party lib that is not needed -->
+			<!--
+	   	  <lib dir="thirdpartyjars">
+	         <exclude name="portlet.jar"/>
+	      </lib>
+	    -->
+
+			<classes dir="${class.dir}" />
+		</war>
+	</target>
+	
+	<target name="explode" depends="war" description="Deploy the exploded archive">
+		<mkdir dir="${war.deploy.dir}"/>
+		<copy todir="${war.deploy.dir}">
+			<fileset dir="${war.dir}"/>
+		</copy>
+	</target>
+	
+	<target name="explode-plume" depends="war" description="Deploy the exploded archive">
+		<mkdir dir="${war-plume.deploy.dir}"/>
+		<copy todir="${war-plume.deploy.dir}">
+			<fileset dir="${war.dir}"/>
+		</copy>
+	</target>
+	
+	<target name="explode-7.1.3" depends="war" description="Deploy the exploded archive">
+		<mkdir dir="${war-plume.deploy.dir}"/>
+		<copy todir="${war-7-1-3.deploy.dir}">
+			<fileset dir="${war.dir}"/>
+		</copy>
+	</target>
+		
+	<target name="unexplode-7-1-3" description="Undeploy the exploded archive">
+		<delete failonerror="no">
+			<fileset dir="${war-7-1-3.deploy.dir}">
+				<exclude name="**/*.jar"/>
+			</fileset>
+		</delete>
+		<delete dir="${war-7-1-3.deploy.dir}" failonerror="no"/>
+	</target>
+		
+	<target name="unexplode" description="Undeploy the exploded archive">
+		<delete failonerror="no">
+			<fileset dir="${war.deploy.dir}">
+				<exclude name="**/*.jar"/>
+			</fileset>
+		</delete>
+		<delete file="${deploy.dir}/${project.name}-ds.xml" failonerror="no"/>
+		<delete dir="${war.deploy.dir}" failonerror="no"/>
+	</target>
+	
+	<target name="unexplode-plume" description="Undeploy the exploded archive">
+		<delete failonerror="no">
+			<fileset dir="${war-plume.deploy.dir}">
+				<exclude name="**/*.jar"/>
+			</fileset>
+		</delete>
+		<delete dir="${war-plume.deploy.dir}" failonerror="no"/>
+	</target>
+			
+	<target name="reexplode" depends="unexplode-plume,explode-plume">
+	</target>
+	
+	<target name="reexplodescripts" depends="unexplode,compile-scripts" description="Deploy the exploded archive">
+		<copy todir="${war-plume.deploy.dir}">
+			<fileset dir="${war.dir}"/>
+		</copy>
+	</target>
+		
+	<!-- for devQA Web -->	
+	<target name="war-devQA-create"  depends="war"  description="Create QA War">
+		<echo>zipping devQA War</echo>
+		<zip destfile="${warfile.output.dir}/war/${project.name}.war.zip" > 
+			<fileset dir="${war.dir}" />  
+		</zip> 
+	</target>
+
+	<target name="js.concatenate">
+		<delete file="${js.dir}/udv.js"/>
+	    <concat destfile="${js.dir}/udv.js">
+	        <fileset dir="${js.dir}">
+	        	<include name="*.js" />
+	    	</fileset> 
+	    </concat>
+	</target>
+	
+	<!-- 
+    <taskdef resource="yuicompressor.tasks" classpath="lib/yuicompressor-taskdef-1.0.jar"/>
+	<target name="js.minify" depends="js.concatenate">
+		<delete dir="${js-min.dir}" failonerror="no"/>
+		<mkdir dir="${js-min.dir}"/>
+        <yuicompressor linebreak="1000" todir="${js-min.dir}">
+                <fileset dir="${js.dir}" includes="udv.js"/>
+                <mapper type="glob" from="*.js" to="*-min.js"/>
+        </yuicompressor>
+	</target>
+	-->
+
+</project>

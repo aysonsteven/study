@@ -1,0 +1,11 @@
+java-json.jar
+jmxremote_optional-1.0_01-ea.jar
+jmxremote_optional.jar
+jppf-client.jar
+jppf-common-node.jar
+jppf-common.jar
+json-simple-1.1.1.jar
+log4j-1.2.15.jar
+PDFOne.jar
+slf4j-api-1.6.1.jar
+slf4j-log4j12-1.6.1.jar

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="DocumentViewer" default="" basedir=".">
+
+	<!-- |============================================================|  -->
+	<!-- |   BUILD PROPERTY                                           |  -->
+	<!-- |============================================================|  -->
+	<!-- Give user a chance to override without editing this file or typing -D -->
+	<property file="${basedir}/build.properties" />
+	<property name="profile" value="prod-mnl-jboss" />
+	<property file="build-${profile}.properties" />
+	<property name="project.name" value="DocumentViewer" />
+	<property name="src.dir" value="src" />
+	<property name="tmp.dir" value="tmp" />
+	<property name="class.dir" value="build/classes" />
+	<property name="web-content.dir" value="WebContent" />
+	<property name="project.war" value="true" />
+	<property name="lib.dir" value="lib" />
+	<property name="war.dir" value="exploded-archives/${project.name}.war" />
+	<property name="exploded.archive.dir" value="${war.dir}" />
+	<property name="deploy.dir" value="${jboss.home}/server/${jboss.domain}/deploy" />
+	<property name="war.deploy.dir" value="${deploy.dir}/${project.name}.war" />
+	<property name="warfile.deploy.dir" value="${deploy.dir}/${project.name}" />
+	<property name="javac.debug" value="true" />
+	<property name="javac.deprecation" value="false" />
+	<property name="debug" value="${debug}" />
+	<property name="warfile.output.dir" value="warcontent" />
+
+	<!-- |=============================================================|  -->
+	<!-- |   CLASS PATH                                                |  -->
+	<!-- |=============================================================|  -->
+	<path id="project-classpath">
+		<fileset dir="${lib.dir}" includes="*.jar" />
+		<fileset dir="${jboss.home}/lib" includes="*.jar" />
+	</path>
+
+	<!-- |=============================================================|  -->
+	<!-- |   CLEANING OF TEMPORARY FOLDERS CREATED                     |  -->
+	<!-- |=============================================================|  -->
+	<target name="clean-class-dir">
+		<delete dir="${class.dir}" />
+		<delete dir="${war.dir}" />
+	</target>
+
+	<!-- |=============================================================|  -->
+	<!-- |   COMPILATION OF JAVA FILES                                 |  -->
+	<!-- |=============================================================|  -->
+	<target name="compile-java" depends="clean-class-dir">
+		<mkdir dir="${class.dir}" />
+		<javac includeantruntime="false" srcdir="${src.dir}" destdir="${class.dir}" classpathref="project-classpath" debug="true" deprecation="false" nowarn="on" />
+	</target>
+	<!-- |=============================================================|  -->
+	<!-- |   Clean Server War                                          |  -->
+	<!-- |=============================================================|  -->
+	
+	<target name="clean_server_war" description="Clean out war file in server">
+		<delete file="${warfile.output.dir}/war/${project.name}.war"/>	      
+	</target>
+
+	<!-- |=============================================================|  -->
+	<!-- |   Building War to temporary location                        |  -->
+	<!-- |=============================================================|  -->
+	<target name="war" depends="compile-java" description="Build the WAR structure in a staging directory">
+		<mkdir dir="${war.dir}" />
+		<mkdir dir="${war.dir}/WEB-INF" />
+		<copy todir="${war.dir}/WEB-INF">
+			<fileset dir="${web-content.dir}/WEB-INF">
+				<include name="**/*.*" />
+				<exclude name="serverconfig*.properties"/>
+			</fileset>
+		</copy>
+		<copy todir="${war.dir}/WEB-INF/classes/META-INF">
+			<fileset dir="${web-content.dir}/META-INF">
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+		<copy todir="${war.dir}/WEB-INF/lib">
+			<fileset dir="${lib.dir}">
+				<includesfile name="deployed-jars.list"/>
+			</fileset>
+		</copy>
+		<copy todir="${war.dir}/WEB-INF/lib">
+			<fileset dir="${lib.dir}">
+				<include name="*.*" />
+			</fileset>
+		</copy>
+		<copy todir="${war.dir}/WEB-INF/classes">
+			<fileset dir="${class.dir}">
+				<include name="**/*.*" />
+			</fileset>
+			<fileset dir="${src.dir}">
+				<include name="*.properties" />
+			</fileset>
+			<fileset dir="${web-content.dir}/WEB-INF">
+				<include name="serverconfig.properties"/>
+			</fileset>
+		</copy>
+		<copy todir="${war.dir}">
+			<fileset dir="${web-content.dir}">
+				<exclude name="**/WEB-INF/**"/>
+				<exclude name="**/META-INF/**"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="compile-scripts" depends="" description="Build the WAR structure in a staging directory">
+		<copy todir="${war.dir}">
+			<fileset dir="${web-content.dir}">
+				<exclude name="**/WEB-INF/**"/>
+				<exclude name="**/META-INF/**"/>
+			</fileset>
+		</copy>
+	</target>
+	
+	<!-- |=============================================================|  -->
+	<!-- |   Build Project                                             |  -->
+	<!-- |=============================================================|  -->
+	<target name="build-war" depends="clean-class-dir, compile-java">
+		<war destfile="${exploded.archive.dir}/${project.name}.war" webxml="${web-content.dir}/WEB-INF/web.xml">
+			<fileset dir="${web-content.dir}">
+				<include name="**/*.*" />
+			</fileset>
+
+			<!-- exclude 3rd party lib that is not needed -->
+			<!--
+	   	  <lib dir="thirdpartyjars">
+	         <exclude name="portlet.jar"/>
+	      </lib>
+	    -->
+
+			<classes dir="${class.dir}" />
+		</war>
+	</target>
+	
+	<target name="reexplodescripts" depends="unexplode,compile-scripts" description="Deploy the exploded archive">
+		<copy todir="${war.deploy.dir}">
+			<fileset dir="${war.dir}"/>
+		</copy>
+	</target>
+	
+	<target name="explode" depends="war" description="Deploy the exploded archive">
+		<mkdir dir="${war.deploy.dir}"/>
+		<copy todir="${war.deploy.dir}">
+			<fileset dir="${war.dir}"/>
+		</copy>
+	</target>
+	
+	<target name="unexplode" description="Undeploy the exploded archive">
+		<delete failonerror="no">
+			<fileset dir="${war.deploy.dir}">
+				<exclude name="**/*.jar"/>
+			</fileset>
+		</delete>
+		<delete file="${deploy.dir}/${project.name}-ds.xml" failonerror="no"/>
+		<delete dir="${war.deploy.dir}" failonerror="no"/>
+	</target>
+	
+	
+	<!-- for MNL Production Web -->	
+			<target name="docviewerwarcreate"  depends="war"  description="Create Production DocViewer War">
+				<echo>zipping DocViewer War</echo>
+				<zip destfile="${warfile.output.dir}/war/${project.name}.war.zip" > 
+					<fileset dir="${war.dir}" /> 
+				</zip> 
+			</target>
+		
+		<target name="JurisProdDocView" description="Upload documentviewer.war.zip to Web Server ">
+				<echo>Uploading DocumentViewer.war.zip to Web Server (172.40.40.103:/var/tmp/warfile/DocumentViewer.zip)</echo>
+				<scp file="${warfile.output.dir}/war/${project.name}.war.zip" todir="supportuser:cl!3ntr3@d@172.40.40.103:/var/tmp/warfile/${project.name}.war.zip" trust="true" />
+				<echo>Uploading DocumentViewer.war.zip to Web Server (172.40.40.104:/var/tmp/warfile/DocumentViewer.zip)</echo>
+				<scp file="${warfile.output.dir}/war/${project.name}.war.zip" todir="supportuser:cl!3ntr3@d@172.40.40.104:/var/tmp/warfile/${project.name}.war.zip" trust="true" />
+			</target>
+
+
+</project>
