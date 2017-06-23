@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="DocViewerWS" default="" basedir=".">
+
+	<!-- |============================================================|  -->
+	<!-- |   BUILD PROPERTY                                           |  -->
+	<!-- |============================================================|  -->
+	<!-- Give user a chance to override without editing this file or typing -D -->
+	<property file="${basedir}/build-prod.properties" />
+	<property name="profile" value="prod" />
+	<property file="build-${profile}.properties" />
+	<property name="project.name" value="DocViewerWS" />
+	<property name="src.dir" value="src" />
+	<property name="tmp.dir" value="tmp" />
+	<property name="class.dir" value="build/classes" />
+	<property name="web-content.dir" value="WebContent" />
+	<property name="project.war" value="true" />
+	<property name="lib.dir" value="lib" />
+	<property name="lucene.lib.dir" value="${lib.dir}/lucene" />
+	<property name="itext.lib.dir" value="${lib.dir}/itext" />
+	<property name="htmltopdf.lib.dir" value="${lib.dir}/htmlToPdf" />
+	<property name="jai.lib.dir" value="${lib.dir}/jai" />
+	<property name="jppf.lib.dir" value="${lib.dir}/jppf" />
+	<property name="pdfbox.lib.dir" value="${lib.dir}/pdfbox" />
+	<property name="loggers.lib.dir" value="${lib.dir}/loggers" />
+		
+	<property name="placeholder.dir" value="placeholder" />
+	<property name="war.dir" value="exploded-archives/${project.name}" />
+	<property name="exploded.archive.dir" value="${war.dir}" />
+	<property name="deploy.dir" value="${tomcat.home}/webapps" />
+	<property name="war.deploy.dir" value="${deploy.dir}/${project.name}" />
+	<property name="warfile.deploy.dir" value="${deploy.dir}/${project.name}" />
+	<property name="javac.debug" value="true" />
+	<property name="javac.deprecation" value="false" />
+	<property name="debug" value="false" />
+	<property name="warfile.output.dir" value="warcontent" />
+	<!-- Building udv_startup.jar related tasks -->
+	<!-- START -->
+	<property name="startup.dir" value="startup" />
+	<property name="startup.resources.dir" value="${startup.dir}/resources" />
+	<property name="startup.src.dir" value="${startup.dir}/src" />
+	<property name="startup.jar.dir" value="${startup.dir}/udv_startup.jar" />
+	<property name="startup.source.util.dir" value="src/com/icomteq/udv/file/util" />
+	<property name="startup.source.startup.dir" value="src/com/icomteq/udv/startup" />
+	<property name="startup.dest.util.dir" value="${startup.src.dir}/com/icomteq/udv/file/util" />
+	<property name="startup.dest.startup.dir" value="${startup.src.dir}/com/icomteq/udv/startup" />
+	<property name="startup.lib.dir" value="${startup.resources.dir}/lib" />
+	<property name="startup.meta.dir" value="${startup.resources.dir}/META-INF/services" />
+	<property name="jppf.driver.lib.dir" value="${jppf.driver.home}/lib" />
+	<property name="jppf.driver.lib.startup.jar" value="${jppf.driver.home}/lib/udv_startup.jar" />
+	<property name="spi.src.dir" value="META-INF/services" />
+	
+	<!-- END -->
+
+	<!-- |=============================================================|  -->
+	<!-- |   CLASS PATH                                                |  -->
+	<!-- |=============================================================|  -->
+	<path id="project-classpath">
+		<fileset dir="${lib.dir}" includes="*.jar" />
+		<fileset dir="${tomcat.home}/lib" includes="*.jar" />
+		<fileset dir="${lucene.lib.dir}" includes="*.jar" />
+		<fileset dir="${htmltopdf.lib.dir}" includes="*.jar" />
+		<fileset dir="${jai.lib.dir}" includes="*.jar" />
+		<fileset dir="${pdfbox.lib.dir}" includes="*.jar" />
+		<fileset dir="${jppf.lib.dir}" includes="*.jar" />
+		<fileset dir="${itext.lib.dir}" includes="*.jar" />
+		<fileset dir="${loggers.lib.dir}" includes="*.jar" />
+	</path>
+
+	<!-- |=============================================================|  -->
+	<!-- |   CLEANING OF TEMPORARY FOLDERS CREATED                     |  -->
+	<!-- |=============================================================|  -->
+	<target name="clean-class-dir">
+		<delete dir="${class.dir}" />
+		<delete dir="${war.dir}" />
+	</target>
+
+	<!-- |=============================================================|  -->
+	<!-- |   COMPILATION OF JAVA FILES                                 |  -->
+	<!-- |=============================================================|  -->
+	<target name="compile-java" depends="clean-class-dir">
+		<mkdir dir="${class.dir}" />
+		<javac includeantruntime="false" srcdir="${src.dir}" destdir="${class.dir}" classpathref="project-classpath" debug="true" deprecation="false" nowarn="on" fork="on" target="1.7" source="1.7"/>
+	</target>
+	<!-- |=============================================================|  -->
+	<!-- |   Clean Server War                                          |  -->
+	<!-- |=============================================================|  -->
+	
+	<target name="clean_server_war" description="Clean out war file in server">
+		<delete file="${warfile.output.dir}/war/${project.name}.war"/>	      
+	</target>
+
+	<!-- |=============================================================|  -->
+	<!-- |   Building War to temporary location                        |  -->
+	<!-- |=============================================================|  -->
+	<target name="war" depends="compile-java" description="Build the WAR structure in a staging directory">
+		<mkdir dir="${war.dir}" />
+		<mkdir dir="${war.dir}/WEB-INF" />
+		<copy todir="${war.dir}/WEB-INF">
+			<fileset dir="${web-content.dir}/WEB-INF">
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+		<copy todir="${war.dir}/WEB-INF/classes/META-INF">
+			<fileset dir="${web-content.dir}/META-INF">
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+		<copy todir="${war.dir}/WEB-INF/lib">
+			<fileset dir="${lib.dir}">
+				<includesfile name="deployed-jars.list"/>
+			</fileset>
+			<fileset dir="${lucene.lib.dir}">
+				<includesfile name="deployed-jars.list"/>
+			</fileset>
+			<fileset dir="${htmltopdf.lib.dir}">
+				<includesfile name="deployed-jars.list"/>
+			</fileset>
+			<fileset dir="${jai.lib.dir}">
+				<includesfile name="deployed-jars.list"/>
+			</fileset>
+			<fileset dir="${pdfbox.lib.dir}">
+				<includesfile name="deployed-jars.list"/>
+			</fileset>
+			<fileset dir="${jppf.lib.dir}">
+				<includesfile name="deployed-jars.list"/>
+			</fileset>
+			<fileset dir="${itext.lib.dir}">
+				<includesfile name="deployed-jars.list"/>
+			</fileset>
+			<fileset dir="${loggers.lib.dir}">
+				<includesfile name="deployed-jars.list"/>
+			</fileset>
+		</copy>
+		<copy todir="${war.dir}/WEB-INF/classes">
+			<fileset dir="${class.dir}">
+				<include name="**/*.*" />
+			</fileset>
+			<fileset dir="${src.dir}">
+				<include name="*.properties" />
+			</fileset>
+			<fileset dir="${placeholder.dir}">
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+	</target>
+
+	<!-- |=============================================================|  -->
+	<!-- |   Build Project                                             |  -->
+	<!-- |=============================================================|  -->
+	<target name="build-war" depends="clean-class-dir, compile-java">
+		<war destfile="${exploded.archive.dir}/${project.name}.war" webxml="${web-content.dir}/WEB-INF/web.xml">
+			<fileset dir="${web-content.dir}">
+				<include name="**/*.*" />
+			</fileset>
+
+			<!-- exclude 3rd party lib that is not needed -->
+			<!--
+	   	  <lib dir="thirdpartyjars">
+	         <exclude name="portlet.jar"/>
+	      </lib>
+	    -->
+
+			<classes dir="${class.dir}" />
+		</war>
+	</target>
+	
+	<target name="explode" depends="war" description="Deploy the exploded archive">
+		<mkdir dir="${war.deploy.dir}"/>
+		<copy todir="${war.deploy.dir}">
+			<fileset dir="${war.dir}"/>
+		</copy>
+	</target>
+	
+	<target name="unexplode" description="Undeploy the exploded archive">
+		<delete failonerror="no">
+			<fileset dir="${war.deploy.dir}">
+				<exclude name="**/*.jar"/>
+			</fileset>
+		</delete>
+		<delete file="${deploy.dir}/${project.name}-ds.xml" failonerror="no"/>
+		<delete dir="${war.deploy.dir}" failonerror="no"/>
+	</target>
+	
+	<!-- for devQA Web -->	
+		<target name="war-devQA-create"  depends="war"  description="Create QA War">
+			<echo>zipping devQA War</echo>
+			<zip destfile="${warfile.output.dir}/war/${project.name}.war.zip" > 
+				<fileset dir="${war.dir}" /> 
+			</zip> 
+		</target>
+
+
+	<target name="reexplode" depends="unexplode,war,explode">
+	</target>
+	
+	<target name="compile-startup-jar">
+		<mkdir dir="${startup.dir}"/>
+		<mkdir dir="${startup.src.dir}"/>
+		<mkdir dir="${startup.dest.util.dir}"/>
+		<mkdir dir="${startup.dest.startup.dir}"/>	
+		<mkdir dir="${startup.lib.dir}"/>
+		<mkdir dir="${startup.meta.dir}"/>
+		
+		<copy todir="${startup.meta.dir}">
+			<fileset dir="${spi.src.dir}">
+				<exclude name="**/*.jar"/>
+			</fileset>
+		</copy>
+		
+		<copy todir="${startup.lib.dir}/">
+			<fileset dir="${lib.dir}">
+				<includesfile name="startup-jars.list"/>
+			</fileset>
+		</copy>
+		
+		<copy todir="${startup.dest.util.dir}/" >
+			<fileset dir="${startup.source.util.dir}">
+				<includesfile name="startup-classes.list"/>
+			</fileset>
+		</copy>
+		
+		<copy todir="${startup.dest.startup.dir}/" >
+			<fileset dir="${startup.source.startup.dir}">
+				<includesfile name="startup-classes.list"/>
+			</fileset>
+		</copy>
+		
+		<javac includeantruntime="false" srcdir="${startup.src.dir}" destdir="${startup.resources.dir}" classpathref="project-classpath" debug="true" deprecation="false" nowarn="on" fork="on" target="1.7" source="1.7"/>
+		
+		<delete file="${startup.jar.dir}"/>
+		<jar basedir="${startup.resources.dir}" jarfile="${startup.jar.dir}"/>
+		
+		<!--<copy tofile="${jppf.driver.lib.startup.jar}" file="${startup.jar.dir}" />-->
+	</target>
+	
+	<target name="scp-udv-startup-221" >
+		<echo>Uploading udv_startup.jar to location "/var/tmp/warfile/hudson" </echo>
+			<scp file="${startup.jar.dir}" 
+				todir="supportuser:@icomteq10@172.20.22.64:/var/tmp/warfile/hudson/udv_startup.jar" trust="true"/>
+				
+	</target>
+	
+	<target name="scp-udv-startup-sandbox56" >
+			<echo>Uploading udv_startup.jar to location "/var/tmp/warfile/hudson" </echo>
+				<scp file="${startup.jar.dir}" 
+					todir="root:@icomteq10@172.20.20.56:/var/tmp/warfile/hudson/udv_startup.jar" trust="true"/>		
+	</target>
+	
+	<target name="scp-udv-startup-sandbox53" >
+		<echo>Uploading udv_startup.jar to location "/var/tmp/warfile/hudson" </echo>
+			<scp file="${startup.jar.dir}" 
+				todir="root:@icomteq10@172.20.20.53:/var/tmp/warfile/hudson/udv_startup.jar" trust="true"/>		
+    </target>
+	
+	<target name="scp-udv-startup-sandbox52" >
+		<echo>Uploading udv_startup.jar to location "/var/tmp/warfile/hudson" </echo>
+			<scp file="${startup.jar.dir}" 
+				todir="root:@icomteq10@172.20.20.52:/var/tmp/warfile/hudson/udv_startup.jar" trust="true"/>		
+	    </target>
+	
+	<target name="scp-udv-startup-sandbox64" >
+		<echo>Uploading udv_startup.jar to location "/var/tmp/warfile/hudson" </echo>
+			<scp file="${startup.jar.dir}" 
+				todir="supportuser:@icomteq10@172.20.20.64:/var/tmp/warfile/hudson/udv_startup.jar" trust="true"/>		
+	</target>
+	
+	<target name="scp-udv-startup-sandbox110" >
+		<echo>Uploading udv_startup.jar to location "/var/tmp/warfile/hudson" </echo>
+		<scp file="${startup.jar.dir}" todir="supportuser:cl!3ntr3@d@172.20.20.110:/var/tmp/warfile/hudson/udv_startup.jar" trust="true"/>		
+	</target>
+	
+	<target name="scp-udv-startup-QA52" >
+		<echo>Uploading udv_startup.jar to location "/var/tmp/warfile/hudson" </echo>
+			<scp file="${startup.jar.dir}" 
+				todir="supportuser:@icomteq10@172.20.22.52:/var/tmp/warfile/hudson/udv_startup.jar" trust="true"/>		
+	</target>
+	
+	<target name="scp-udv-startup-sandbox232" >
+		<echo>Uploading udv_startup.jar to location "/var/tmp/warfile/hudson" </echo>
+			<scp file="${startup.jar.dir}" 
+				todir="root:@icomteq10@172.20.20.232:/var/tmp/warfile/hudson/udv_startup.jar" trust="true"/>		
+	</target>
+	
+	<target name="scp-udv-startup-prodmnl106" >
+		<echo>Uploading udv_startup.jar to location "/var/tmp/warfile/hudson" </echo>
+			<scp file="${startup.jar.dir}" 
+				todir="supportuser:cl!3ntr3@d@172.40.40.106:/var/tmp/warfile/hudson/udv_startup.jar" trust="true"/>		
+	</target>
+	<target name="scp-udv-startup-prodmnl203" >
+		<echo>Uploading udv_startup.jar to location "/var/tmp/warfile/hudson" </echo>
+			<scp file="${startup.jar.dir}" 
+				todir="supportuser:cl!3ntr3@d@172.40.40.203:/var/tmp/warfile/hudson/udv_startup.jar" trust="true"/>		
+	</target>
+	
+	<target name="scp-udv-startup-sandboxDICT" >
+			<echo>Uploading udv_startup.jar to location "/var/tmp/warfile/hudson" </echo>
+				<scp file="${startup.jar.dir}" 
+					todir="supportuser:cl!3ntr3@d@202.90.131.36:/var/tmp/warfile/hudson/udv_startup.jar" trust="true" port="5001"/>		
+	</target>
+	
+	<target name="scp-udv-startup-sandboxPCSO" >
+				<echo>Uploading udv_startup.jar to location "/var/tmp/warfile/hudson" </echo>
+					<scp file="${startup.jar.dir}" 
+						todir="supportuser:cl!3ntr3@d@172.20.22.76:/var/tmp/warfile/hudson/udv_startup.jar" trust="true"/>		
+		</target>
+	
+	<target name="scp-udv-startup-sandbox60" >
+	<echo>Uploading udv_startup.jar to location "/var/tmp/warfile/hudson" </echo>
+	<scp file="${startup.jar.dir}" 
+	todir="root:@icomteq10@172.20.20.60:/var/tmp/warfile/hudson/udv_startup.jar" trust="true"/>		
+	</target>
+	
+	<!-- for scp jppfproperties per site only -->
+			<target name="sandbox56_jppfproperties" >
+				<scp file="${basedir}/Configurations/jppfsandbox56.properties" 
+					todir="root:@icomteq10@172.20.20.56:/var/tmp/warfile/" trust="true"/>
+			</target>
+		
+			<target name="sandbox53_jppfproperties" >
+				<scp file="${basedir}/Configurations/jppfsandbox53.properties" 
+					todir="root:@icomteq10@172.20.20.53:/var/tmp/warfile/" trust="true"/>
+			</target>
+	
+			 <target name="sandbox52_jppfproperties" >
+				<scp file="${basedir}/Configurations/jppfsandbox52.properties" 
+					todir="root:@icomteq10@172.20.20.52:/var/tmp/warfile/" trust="true"/>
+			 </target>	
+	
+			 <target name="sandbox64_jppfproperties" >
+				<scp file="${basedir}/Configurations/jppfsandbox64.properties" 
+					todir="supportuser:@icomteq10@172.20.20.64:/var/tmp/warfile/" trust="true"/>
+			</target>
+	
+			<target name="sandbox110_jppfproperties" >
+				<scp file="${basedir}/Configurations/jppfsandbox110.properties" todir="supportuser:cl!3ntr3@d@172.20.20.110:/var/tmp/warfile" trust="true"/>
+			</target>
+	
+	 		<target name="sandbox210_jppfproperties" >
+				<scp file="${basedir}/Configurations/jppfsandbox210.properties" 
+					todir="supportuser:cl!3ntr3@d@172.40.40.210:/var/tmp/warfile/" trust="true"/>
+			</target>
+	
+			<target name="sandbox213_jppfproperties" >
+				<scp file="${basedir}/Configurations/jppfsandbox213.properties" 
+					todir="supportuser:@icomteq10@172.20.20.213:/var/tmp/warfile/" trust="true"/>
+			</target>
+	
+			<target name="sandbox232_jppfproperties" >
+				<scp file="${basedir}/Configurations/jppfsandbox232.properties" 
+					todir="root:@icomteq10@172.20.20.232:/var/tmp/warfile/" trust="true"/>
+			</target>
+	
+			<target name="sandbox60_jppfproperties" >
+				<scp file="${basedir}/Configurations/jppfsandbox60.properties" 
+				todir="root:@icomteq10@172.20.20.60:/var/tmp/warfile/" trust="true"/>
+			</target>
+	
+			<target name="sandboxDICT_jppfproperties" >
+				<scp file="${basedir}/Configurations/jppfsandboxDICT.properties" 
+				todir="supportuser:cl!3ntr3@d@202.90.131.36:/var/tmp/warfile/" trust="true" port="5001"/>
+			</target>
+	
+			<target name="sandboxPCSO_jppfproperties" >
+					<scp file="${basedir}/Configurations/jppfsandboxPCSO.properties" todir="supportuser:cl!3ntr3@d@172.20.22.76:/var/tmp/warfile/" trust="true"/>
+				</target>
+	
+			<target name="sandbox221_jppfproperties" >
+					<scp file="${basedir}/Configurations/jppfsandbox221.properties" 
+					todir="root:@icomteq10@172.20.20.221:/var/tmp/warfile/" trust="true"/>
+				</target>
+</project>

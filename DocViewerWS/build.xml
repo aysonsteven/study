@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="DocViewerWS" default="" basedir=".">
+
+	<!-- |============================================================|  -->
+	<!-- |   BUILD PROPERTY                                           |  -->
+	<!-- |============================================================|  -->
+	<!-- Give user a chance to override without editing this file or typing -D -->
+	<property file="build.properties" />
+	
+	<!-- <property name="profile" value="dev" /> -->
+	<!-- <property file="build-${profile}.properties" /> -->
+	<property name="project.name" value="DocViewerWS" />
+	<property name="src.dir" value="src" />
+	<property name="tmp.dir" value="tmp" />
+	<property name="class.dir" value="build/classes" />
+	<property name="web-content.dir" value="WebContent" />
+	<property name="project.war" value="true" />
+	<property name="lib.dir" value="lib" />
+	<property name="lucene.lib.dir" value="${lib.dir}/lucene" />
+	<property name="itext.lib.dir" value="${lib.dir}/itext" />
+	<property name="htmltopdf.lib.dir" value="${lib.dir}/htmlToPdf" />
+	<property name="jai.lib.dir" value="${lib.dir}/jai" />
+	<property name="jppf.lib.dir" value="${lib.dir}/jppf" />
+	<property name="pdfbox.lib.dir" value="${lib.dir}/pdfbox" />
+	<property name="loggers.lib.dir" value="${lib.dir}/loggers" />
+		
+	<property name="placeholder.dir" value="placeholder" />
+	<property name="war.dir" value="exploded-archives/${project.name}" />
+	<property name="exploded.archive.dir" value="${war.dir}" />
+	<property name="deploy.dir" value="${tomcat.home}/webapps" />
+	<property name="war.deploy.dir" value="${deploy.dir}/${project.name}" />
+	<property name="warfile.deploy.dir" value="${deploy.dir}/${project.name}" />
+	<property name="javac.debug" value="true" />
+	<property name="javac.deprecation" value="false" />
+	<property name="debug" value="false" />
+	<property name="warfile.output.dir" value="warcontent" />
+	<!-- Building udv_startup.jar related tasks -->
+	<!-- START -->
+	<property name="startup.dir" value="startup" />
+	<property name="startup.resources.dir" value="${startup.dir}/resources" />
+	<property name="startup.src.dir" value="${startup.dir}/src" />
+	<property name="startup.jar.dir" value="${startup.dir}/udv_startup.jar" />
+	<property name="startup.source.util.dir" value="src/com/icomteq/udv/file/util" />
+	<property name="startup.source.startup.dir" value="src/com/icomteq/udv/startup" />
+	<property name="startup.dest.util.dir" value="${startup.src.dir}/com/icomteq/udv/file/util" />
+	<property name="startup.dest.startup.dir" value="${startup.src.dir}/com/icomteq/udv/startup" />
+	<property name="startup.lib.dir" value="${startup.resources.dir}/lib" />
+	<property name="startup.meta.dir" value="${startup.resources.dir}/META-INF/services" />
+	<property name="jppf.driver.lib.dir" value="${jppf.driver.home}/lib" />
+	<property name="jppf.driver.lib.startup.jar" value="${jppf.driver.home}/lib/udv_startup.jar" />
+
+	<property name="text.dir" value="text" />
+	<property name="text.src.dir" value="${text.dir}/src" />
+	<property name="text.resources.dir" value="${text.dir}/resources" />
+	<property name="text.jar.dir" value="${text.dir}/udv_indexer.jar" />
+	<property name="text.lib.dir" value="${text.resources.dir}/lib" />
+	<property name="text.meta.dir" value="${text.resources.dir}/META-INF/services" />
+	<property name="spi.src.dir" value="META-INF/services" />
+	
+	<!-- END -->
+
+	<!-- |=============================================================|  -->
+	<!-- |   CLASS PATH                                                |  -->
+	<!-- |=============================================================|  -->
+	<path id="project-classpath">
+		<fileset dir="${lib.dir}" includes="*.jar" />
+		<fileset dir="${tomcat.home}/lib" includes="*.jar" />
+		<fileset dir="${lucene.lib.dir}" includes="*.jar" />
+		<fileset dir="${htmltopdf.lib.dir}" includes="*.jar" />
+		<fileset dir="${jai.lib.dir}" includes="*.jar" />
+		<fileset dir="${pdfbox.lib.dir}" includes="*.jar" />
+		<fileset dir="${jppf.lib.dir}" includes="*.jar" />
+		<fileset dir="${itext.lib.dir}" includes="*.jar" />
+		<fileset dir="${loggers.lib.dir}" includes="*.jar" />
+	</path>
+
+	<!-- |=============================================================|  -->
+	<!-- |   CLEANING OF TEMPORARY FOLDERS CREATED                     |  -->
+	<!-- |=============================================================|  -->
+	<target name="clean-class-dir">
+		<delete dir="${class.dir}" />
+		<delete dir="${war.dir}" />
+	</target>
+
+	<!-- |=============================================================|  -->
+	<!-- |   COMPILATION OF JAVA FILES                                 |  -->
+	<!-- |=============================================================|  -->
+	<target name="compile-java" depends="clean-class-dir">
+		<mkdir dir="${class.dir}" />
+		<javac includeantruntime="false" srcdir="${src.dir}" destdir="${class.dir}" classpathref="project-classpath" debug="true" deprecation="false" nowarn="on" fork="on" target="1.7" source="1.7"/>
+	</target>
+	<!-- |=============================================================|  -->
+	<!-- |   Clean Server War                                          |  -->
+	<!-- |=============================================================|  -->
+	
+	<target name="clean_server_war" description="Clean out war file in server">
+		<delete file="${warfile.output.dir}/war/${project.name}.war"/>	      
+	</target>
+
+	<!-- |=============================================================|  -->
+	<!-- |   Building War to temporary location                        |  -->
+	<!-- |=============================================================|  -->
+	<target name="war" depends="compile-java" description="Build the WAR structure in a staging directory">
+		<mkdir dir="${war.dir}" />
+		<mkdir dir="${war.dir}/WEB-INF" />
+		<copy todir="${war.dir}/WEB-INF">
+			<fileset dir="${web-content.dir}/WEB-INF">
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+		<copy todir="${war.dir}/WEB-INF/classes/META-INF">
+			<fileset dir="${web-content.dir}/META-INF">
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+		<copy todir="${war.dir}/WEB-INF/lib">
+			<fileset dir="${lib.dir}">
+				<includesfile name="deployed-jars.list"/>
+			</fileset>
+			<fileset dir="${lucene.lib.dir}">
+				<includesfile name="deployed-jars.list"/>
+			</fileset>
+			<fileset dir="${htmltopdf.lib.dir}">
+				<includesfile name="deployed-jars.list"/>
+			</fileset>
+			<fileset dir="${jai.lib.dir}">
+				<includesfile name="deployed-jars.list"/>
+			</fileset>
+			<fileset dir="${pdfbox.lib.dir}">
+				<includesfile name="deployed-jars.list"/>
+			</fileset>
+			<fileset dir="${jppf.lib.dir}">
+				<includesfile name="deployed-jars.list"/>
+			</fileset>
+			<fileset dir="${itext.lib.dir}">
+				<includesfile name="deployed-jars.list"/>
+			</fileset>
+			<fileset dir="${loggers.lib.dir}">
+				<includesfile name="deployed-jars.list"/>
+			</fileset>
+		</copy>
+		<copy todir="${war.dir}/WEB-INF/classes">
+			<fileset dir="${class.dir}">
+				<include name="**/*.*" />
+			</fileset>
+			<fileset dir="${src.dir}">
+				<include name="*.properties" />
+			</fileset>
+			<fileset dir="${placeholder.dir}">
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+	</target>
+
+	<!-- |=============================================================|  -->
+	<!-- |   Build Project                                             |  -->
+	<!-- |=============================================================|  -->
+	<target name="build-war" depends="clean-class-dir, compile-java">
+		<war destfile="${exploded.archive.dir}/${project.name}.war" webxml="${web-content.dir}/WEB-INF/web.xml">
+			<fileset dir="${web-content.dir}">
+				<include name="**/*.*" />
+			</fileset>
+
+			<!-- exclude 3rd party lib that is not needed -->
+			<!--
+	   	  <lib dir="thirdpartyjars">
+	         <exclude name="portlet.jar"/>
+	      </lib>
+	    -->
+
+			<classes dir="${class.dir}" />
+		</war>
+	</target>
+	
+	<target name="explode" depends="war" description="Deploy the exploded archive">
+		<mkdir dir="${war.deploy.dir}"/>
+		<copy todir="${war.deploy.dir}">
+			<fileset dir="${war.dir}"/>
+		</copy>
+	</target>
+	
+	<target name="unexplode" description="Undeploy the exploded archive">
+		<delete failonerror="no">
+			<fileset dir="${war.deploy.dir}">
+				<exclude name="**/*.jar"/>
+			</fileset>
+		</delete>
+		<delete file="${deploy.dir}/${project.name}-ds.xml" failonerror="no"/>
+		<delete dir="${war.deploy.dir}" failonerror="no"/>
+	</target>
+	
+	<!-- for devQA Web -->	
+		<target name="war-devQA-create"  depends="war"  description="Create QA War">
+			<echo>zipping devQA War</echo>
+			<zip destfile="${warfile.output.dir}/war/${project.name}.war.zip" > 
+				<fileset dir="${war.dir}" /> 
+			</zip> 
+		</target>
+
+
+	<target name="reexplode" depends="unexplode,war,explode">
+	</target>
+	
+	<target name="compile-startup-jar">
+		<mkdir dir="${startup.dir}"/>
+		<mkdir dir="${startup.src.dir}"/>
+		<mkdir dir="${startup.dest.util.dir}"/>
+		<mkdir dir="${startup.dest.startup.dir}"/>	
+		<mkdir dir="${startup.lib.dir}"/>
+		<mkdir dir="${startup.meta.dir}"/>
+		
+		<copy todir="${startup.meta.dir}">
+			<fileset dir="${spi.src.dir}">
+				<exclude name="**/*.jar"/>
+			</fileset>
+		</copy>
+		
+		<copy todir="${startup.lib.dir}/">
+			<fileset dir="${lib.dir}">
+				<includesfile name="startup-jars.list"/>
+			</fileset>
+			<fileset dir="${loggers.lib.dir}">
+				<includesfile name="startup-jars.list"/>
+			</fileset>
+		</copy>
+		
+		<copy todir="${startup.dest.util.dir}/" >
+			<fileset dir="${startup.source.util.dir}">
+				<includesfile name="startup-classes.list"/>
+			</fileset>
+		</copy>
+		
+		<copy todir="${startup.dest.startup.dir}/" >
+			<fileset dir="${startup.source.startup.dir}">
+				<includesfile name="startup-classes.list"/>
+			</fileset>
+		</copy>
+		
+		<javac includeantruntime="false" srcdir="${startup.src.dir}" destdir="${startup.resources.dir}" classpathref="project-classpath" debug="true" deprecation="false" nowarn="on" fork="on" target="1.7" source="1.7"/>
+		<delete file="${startup.jar.dir}"/>
+		<jar basedir="${startup.resources.dir}" jarfile="${startup.jar.dir}"/>
+		<copy tofile="${jppf.driver.lib.startup.jar}" file="${startup.jar.dir}" />
+		<delete dir="${startup.src.dir}"/>
+		<delete dir="${startup.resources.dir}"/>
+	</target>
+	
+	<!-- Compiles executable utility jar file -->	
+	<!-- Once executable jar has been compiled -->
+	<!-- User needs to include all jars mentioned under indexer-jars.list -->
+	<target name="compile-process-text-jar">
+		<mkdir dir="${text.dir}"/>
+		<mkdir dir="${text.src.dir}"/>
+		<mkdir dir="${text.resources.dir}/META-INF"/>
+		
+		<property name="text.dir" value="text" />
+		<property name="text.src.dir" value="${text.dir}/src" />
+		<property name="text.resources.dir" value="${text.dir}/resources" />
+		<property name="text.jar.dir" value="${text.dir}/udv_indexer.jar" />
+		<property name="text.lib.dir" value="${text.resources.dir}/lib" />
+		<property name="startup.meta.dir" value="${startup.resources.dir}/META-INF/services" />
+		
+		<copy todir="${text.resources.dir}/">
+			<fileset dir="${lib.dir}/loggers">
+				<includesfile name="indexer-jars.list"/>
+			</fileset>
+		</copy>
+		
+		<copy todir="${text.resources.dir}/">
+			<fileset dir="${lib.dir}/lucene">
+				<includesfile name="indexer-jars.list"/>
+			</fileset>
+		</copy>
+		
+		<copy todir="${text.resources.dir}/">
+			<fileset dir="${lib.dir}/pdfbox">
+				<includesfile name="indexer-jars.list"/>
+			</fileset>
+		</copy>
+			
+		<copy todir="${text.resources.dir}/">
+			<fileset dir="${lib.dir}/itext">
+				<includesfile name="indexer-jars.list"/>
+			</fileset>
+		</copy>
+		
+		<copy todir="${text.resources.dir}/">
+			<fileset dir="${lib.dir}">
+				<includesfile name="indexer-jars.list"/>
+			</fileset>
+		</copy>
+		
+		<copy todir="${text.src.dir}/" >
+			<fileset dir="src">
+				<includesfile name="indexer-classes.list"/>
+			</fileset>
+		</copy>
+		
+	    <manifest file="${text.resources.dir}/META-INF/MANIFEST.MF">
+	        <attribute name="Class-Path" value=". lombok.jar lucene-analyzers-common-5.3.1.jar lucene-core-5.3.1.jar lucene-queryparser-5.3.1.jar commons-codec-1.10.jar commons-collections-3.2.1.jar commons-io-2.4.jar commons-lang3-3.4.jar commons-logging-1.2.jar json-20090211.jar fontbox-1.8.10.jar jempbox-1.8.10.jar pdfbox-1.8.10.jar preflight-1.8.10.jar xmpbox-1.8.10.jar itext-pdfa-5.5.8.jar itext-xtra-5.5.8.jar itext-yahp.jar itextpdf-5.5.8.jar log4j-1.2.15.jar slf4j-api-1.7.12.jar slf4j-log4j12-1.7.12.jar servlet-api.jar" />
+	        <attribute name="Main-Class" value="com.icomteq.udv.text.TextPositionIndexer"/>  
+	    </manifest>
+		
+		<javac  includeantruntime="false" srcdir="${text.src.dir}" destdir="${text.resources.dir}" classpathref="project-classpath" debug="true" deprecation="false" nowarn="on" fork="on" target="1.7" source="1.7"/>
+		
+		<delete file="${text.jar.dir}"/>
+		<jar manifest="${text.resources.dir}/META-INF/MANIFEST.MF" basedir="${text.resources.dir}" jarfile="${text.jar.dir}"/>
+		<delete dir="${text.src.dir}"/>
+	</target>
+</project>

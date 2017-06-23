@@ -1,0 +1,24 @@
+#must be on same level of utility jar
+lombok.jar
+commons-codec-1.10.jar
+commons-collections-3.2.1.jar
+commons-io-2.4.jar
+commons-lang3-3.4.jar
+commons-logging-1.2.jar
+json-20090211.jar
+lucene-analyzers-common-5.3.1.jar
+lucene-core-5.3.1.jar
+lucene-queryparser-5.3.1.jar
+fontbox-1.8.10.jar
+jempbox-1.8.10.jar
+pdfbox-1.8.10.jar
+preflight-1.8.10.jar
+xmpbox-1.8.10.jar
+itext-pdfa-5.5.8.jar
+itext-xtra-5.5.8.jar
+itext-yahp.jar
+itextpdf-5.5.8.jar
+log4j-1.2.15.jar
+slf4j-api-1.7.12.jar
+slf4j-log4j12-1.7.12.jar
+servlet-api.jar
